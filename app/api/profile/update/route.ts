@@ -1,29 +1,45 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { validateUsername } from "@/lib/validations/username";
 
-export async function POST(req: Request) {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-        return new Response("Unauthorized", { status: 401 });
-    }
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { username, userId, ...otherFields } = body;
 
-    const { name, username,bio } = await req.json();
+    if (username !== undefined) {
+      const validation = validateUsername(username);
+      if (!validation.valid) {
+        return NextResponse.json({ error: validation.error }, { status: 400 });
+      }
 
-     if (bio && bio.length > 160) {
-        return Response.json(
-            { error: "Bio must be under 160 characters" },
-            { status: 400 }
-        );
-    }
-    await prisma.user.update({
-        where: { email: session.user.email },
-        data: {
-            name,
-            username,
-            bio: bio?.trim() || null,
+      const existing = await prisma.user.findFirst({
+        where: {
+          username,
+          NOT: { id: userId },
         },
+      });
+
+      if (existing) {
+        return NextResponse.json(
+          { error: "Username already taken" },
+          { status: 409 }
+        );
+      }
+    }
+
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { ...(username && { username }), ...otherFields },
     });
 
-    return Response.json({ success: true });
+    return NextResponse.json({ success: true, user }, { status: 200 });
+
+  } catch (error: any) {
+    if (error.code === "P2002" && error.meta?.target?.includes("username")) {
+      return NextResponse.json({ error: "Username already taken" }, { status: 409 });
+    }
+    console.error("Profile update error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }
