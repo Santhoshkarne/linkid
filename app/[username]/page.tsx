@@ -6,6 +6,7 @@ import { ProfileCard } from "./ProfileCard";
 import { ProfileFooter } from "./ProfileFooter";
 
 import type { Link } from "./types/type";
+import type { Metadata } from "next";
 
 export async function generateMetadata(
   { params }: { params: Promise<{ username: string }> }
