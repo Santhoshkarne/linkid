@@ -20,8 +20,10 @@ export async function GET() {
     const vcard = buildVCard({ user, links: user.links });
     return new Response(vcard, {
         headers: {
-            "Content-Type": "text/vcard",
-            "Content-Disposition": `attachment; filename="${user.name}_profile.vcf"`,
+            "Content-Type": "text/vcard; charset=utf-8",
+            "Content-Disposition": `attachment; filename="${((user.name || user.username) ?? "profile").replace(/\s+/g, "_")}_profile.vcf"`,
+            "Cache-Control": "private, no-store, max-age=0",
+            "Pragma": "no-cache",
         },
     }); 
 

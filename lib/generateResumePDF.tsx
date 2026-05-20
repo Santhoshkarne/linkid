@@ -164,7 +164,7 @@ export function generateResumePDF({
           {links.map((link) => (
             <View key={link.id} style={styles.linkRow}>
               <Text style={styles.platformName}>{link.platform}</Text>
-              <Text style={styles.arrow}>→</Text>
+              <Text style={styles.arrow}>-</Text>
               <PdfLink src={link.url} style={styles.linkUrl}>
                 {link.url.replace("https://", "").replace("http://", "")}
               </PdfLink>
@@ -173,7 +173,9 @@ export function generateResumePDF({
         </View>
 
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>linkid.qzz.io/{user.username}</Text>
+          <Text style={styles.footerText}>
+            {process.env.NEXT_PUBLIC_BASE_URL}/{user.username}
+          </Text>
           <Text style={styles.footerText}>Generated {generatedDate}</Text>
         </View>
       </Page>

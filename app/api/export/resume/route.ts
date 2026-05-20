@@ -27,7 +27,9 @@ export async function GET() {
   return new Response(uint8, {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="${user.name}_profile.pdf"`,
+      "Content-Disposition": `attachment; filename="${((user.name || user.username) ?? "profile").replace(/\s+/g, "_")}_profile.pdf"`,
+      "Cache-Control": "private, no-store, max-age=0",
+      "Pragma": "no-cache",
     },
   });
 }

@@ -31,7 +31,7 @@ export function buildVCard({
     vcard += `URL;TYPE=${escapeText(link.platform.toUpperCase())}:${sanitizeUri(link.url)}${CRLF}`;
   }
 
-  vcard += `URL:${sanitizeUri(`https://linkid.qzz.io/${user.username}`)}${CRLF}`;
+  vcard += `URL:${process.env.NEXT_PUBLIC_BASE_URL}/${user.username}${CRLF}`;
   vcard += `END:VCARD${CRLF}`;
   return vcard;
 }

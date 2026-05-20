@@ -3,7 +3,7 @@ import { buildVCard } from "@/lib/buildVCard";
 
 export async function GET(
   _req: Request,
-  { params }: { params: Promise<{ username: string }> }
+  { params }: { params: Promise<{ username: string }> },
 ) {
   const { username } = await params;
   const user = await prisma.user.findUnique({
@@ -17,8 +17,10 @@ export async function GET(
 
   return new Response(vcard, {
     headers: {
-      "Content-Type": "text/vcard",
-      "Content-Disposition": `attachment; filename="${user.username}.vcf"`,
+      "Content-Type": "text/vcard; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${((user.name || user.username) ?? "profile").replace(/\s+/g, "_")}_profile.vcf"`,
+      "Cache-Control": "no-store",
+      "Pragma": "no-cache",
     },
   });
 }
