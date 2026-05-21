@@ -190,68 +190,78 @@ export function ProfileActionsCard({ hasPassword, profileDraft, profileVersions 
                     <CardTitle className="text-lg">Actions</CardTitle>
                 </CardHeader>
 
-                <CardContent className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                    {profileDraft && (
-                        <>
+                <CardContent className="space-y-6">
+                    {/* Account Actions Section */}
+                    <div className="space-y-3">
+                        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            Account Management
+                        </h3>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap items-center">
+                            {profileDraft && (
+                                <>
+                                    <Button
+                                        onClick={() => setPublishOpen(true)}
+                                        className="w-full sm:w-auto bg-green-600 hover:bg-green-700 font-medium"
+                                    >
+                                        <Check className="h-4 w-4" />
+                                        Publish Draft
+                                    </Button>
+
+                                    <Button
+                                        variant="outline"
+                                        className="w-full sm:w-auto font-medium"
+                                        onClick={() => setPreviewOpen(true)}
+                                    >
+                                        <Link2 className="h-4 w-4" />
+                                        Preview Draft
+                                    </Button>
+                                </>
+                            )}
+
                             <Button
-                                onClick={() => setPublishOpen(true)}
-                                className="w-full sm:w-auto bg-green-600 hover:bg-green-700"
+                                variant="outline"
+                                className="w-full sm:w-auto font-medium"
+                                onClick={() => setGenerateOpen(true)}
                             >
-                                <Check className="h-4 w-4" />
-                                Publish Draft
+                                <KeyRound className="h-4 w-4" />
+                                Generate Merge Code
                             </Button>
 
                             <Button
                                 variant="outline"
-                                className="w-full sm:w-auto"
-                                onClick={() => setPreviewOpen(true)}
+                                className="w-full sm:w-auto font-medium"
+                                onClick={() => setMergeOpen(true)}
                             >
                                 <Link2 className="h-4 w-4" />
-                                Preview Draft
+                                Merge Using Code
                             </Button>
-                        </>
-                    )}
 
-                    <Button
-                        variant="outline"
-                        className="w-full sm:w-auto"
-                        onClick={() => setGenerateOpen(true)}
-                    >
-                        <KeyRound className="h-4 w-4" />
-                        Generate Merge Code
-                    </Button>
-
-                    <Button
-                        variant="outline"
-                        className="w-full sm:w-auto"
-                        onClick={() => setMergeOpen(true)}
-                    >
-                        <Link2 className="h-4 w-4" />
-                        Merge Using Code
-                    </Button>
-
-                    <form
-                        action="/api/auth/signout"
-                        method="post"
-                        className="w-full sm:w-auto"
-                    >
-                        <Button
-                            variant="destructive"
-                            type="submit"
-                            className="w-full"
-                        >
-                            <LogOut className="h-4 w-4" />
-                            Logout
-                        </Button>
-                    </form>
+                            <form
+                                action="/api/auth/signout"
+                                method="post"
+                                className="w-full sm:w-auto"
+                            >
+                                <Button
+                                    variant="destructive"
+                                    type="submit"
+                                    className="w-full font-medium"
+                                >
+                                    <LogOut className="h-4 w-4" />
+                                    Logout
+                                </Button>
+                            </form>
+                        </div>
+                    </div>
 
                     {/* Export Section */}
-                    <div className="border-t pt-3">
-                        <p className="text-sm text-muted-foreground mb-2">Export Profile</p>
-                        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                    <div className="border-t pt-5 space-y-3">
+                        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            Export Profile
+                        </h3>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                             <Button
                                 variant="outline"
-                                className="w-full sm:w-auto"
+                                className="w-full sm:w-auto font-medium"
                                 asChild
                             >
                                 <a href="/api/export/vcard">
@@ -262,7 +272,7 @@ export function ProfileActionsCard({ hasPassword, profileDraft, profileVersions 
 
                             <Button
                                 variant="outline"
-                                className="w-full sm:w-auto"
+                                className="w-full sm:w-auto font-medium"
                                 asChild
                             >
                                 <a href="/api/export/resume">
