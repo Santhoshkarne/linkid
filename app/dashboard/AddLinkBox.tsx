@@ -66,7 +66,7 @@ export default function AddLinkBox({
         }
 
         const finalLabel = label.trim();
-        if (!finalLabel) {
+        if (platform === "website" && !finalLabel) {
             return toast.error("Please enter a name for this link");
         }
 
@@ -117,7 +117,13 @@ export default function AddLinkBox({
             </Select>
 
             <Input
-                placeholder="Link Display Name (e.g. My Resume, My Blog)"
+                placeholder={
+                    !platform
+                        ? "Link Display Name"
+                        : platform === "website"
+                        ? "Link Display Name (Required)"
+                        : "Link Display Name (Optional)"
+                }
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
             />
