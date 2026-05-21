@@ -31,6 +31,7 @@ type LinksSectionProps = {
     onUpdate: (id: string, url: string) => Promise<void>;
     onToggleVisibility: (id: string, isPublic: boolean) => Promise<void>;
     onDelete: (id: string) => Promise<void>;
+    onReorder: (links: ProfileLink[]) => void;
 };
 
 function SortableLinkWrapper({ link, children }: { link: ProfileLink; children: React.ReactNode }) {
@@ -68,6 +69,7 @@ export function LinksSection({
     onUpdate,
     onToggleVisibility,
     onDelete,
+    onReorder,
 }: LinksSectionProps) {
     const [localLinks, setLocalLinks] = React.useState<ProfileLink[]>(links);
     const localLinksRef = React.useRef(localLinks);
@@ -100,14 +102,16 @@ export function LinksSection({
     }, [links]);
 
     const saveOrder = React.useCallback(async () => {
-        // Process queued ordered ids; ensure only one in-flight request at a time
+        // Ensure only one in-flight request at a time and properly handle state
+        if (inFlightRef.current) return;
+        inFlightRef.current = true;
         isReorderingRef.current = true;
+
         while (pendingOrderedIdsRef.current) {
-            if (inFlightRef.current) return;
-            inFlightRef.current = true;
             const ids = pendingOrderedIdsRef.current;
             pendingOrderedIdsRef.current = null;
             setIsSaving(true);
+            
             try {
                 const res = await fetch("/api/links/reorder", {
                     method: "POST",
@@ -120,6 +124,7 @@ export function LinksSection({
                     const refresh = await fetch("/api/links");
                     const data = await refresh.json();
                     updateLocalLinks(data.links || []);
+                    onReorder(data.links || []);
                 }
             } catch (e) {
                 // Network error: refetch to reconcile
@@ -127,16 +132,17 @@ export function LinksSection({
                     const refresh = await fetch("/api/links");
                     const data = await refresh.json();
                     updateLocalLinks(data.links || []);
+                    onReorder(data.links || []);
                 } catch (_) {
                     // ignore
                 }
-            } finally {
-                inFlightRef.current = false;
-                setIsSaving(false);
             }
         }
+        
+        inFlightRef.current = false;
+        setIsSaving(false);
         isReorderingRef.current = false;
-    }, []);
+    }, [updateLocalLinks, onReorder]);
 
     const debouncedSave = useDebounce(() => saveOrder(), 500);
 
@@ -151,12 +157,13 @@ export function LinksSection({
 
             const newList = arrayMove(localLinks, oldIndex, newIndex);
             updateLocalLinks(newList);
+            onReorder(newList); // Synchronize parent state immediately
             // Queue the latest order and kick off the save loop
             isReorderingRef.current = true;
             pendingOrderedIdsRef.current = newList.map((l) => l.id);
             debouncedSave();
         },
-        [localLinks, debouncedSave]
+        [localLinks, debouncedSave, onReorder, updateLocalLinks]
     );
 
     return (
