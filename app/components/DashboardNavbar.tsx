@@ -9,6 +9,14 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { ThemeToggle } from "./ThemeToggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -34,6 +42,7 @@ export function DashboardNavbar() {
     const { data: session } = useSession();
     const user = session?.user;
     const [scrolled, setScrolled] = useState(false);
+    const [signOutDialogOpen, setSignOutDialogOpen] = useState(false);
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 8);
@@ -51,6 +60,7 @@ export function DashboardNavbar() {
         : "U";
 
     return (
+        <>
         <header
             className={`sticky top-0 z-50 w-full border-b transition-shadow duration-300 ${scrolled
                     ? "border-violet-200/70 bg-white/85 shadow-md shadow-violet-950/[0.07] dark:border-white/10 dark:bg-zinc-950/85 dark:shadow-black/30"
@@ -166,7 +176,7 @@ export function DashboardNavbar() {
 
                             <DropdownMenuItem
                                 className="mx-1 mb-1 flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-red-600 focus:bg-red-50 focus:text-red-700 dark:text-red-400 dark:focus:bg-red-950/40 dark:focus:text-red-300"
-                                onClick={() => signOut({ callbackUrl: "/login" })}
+                                onClick={() => setSignOutDialogOpen(true)}
                             >
                                 <LogOut className="h-4 w-4" />
                                 Sign out
@@ -176,5 +186,42 @@ export function DashboardNavbar() {
                 </div>
             </div>
         </header>
+        <Dialog
+    open={signOutDialogOpen}
+    onOpenChange={setSignOutDialogOpen}
+>
+    <DialogContent>
+        <DialogHeader>
+            <DialogTitle>
+                Confirm Sign Out
+            </DialogTitle>
+
+            <DialogDescription>
+                Are you sure you want to sign out of your account?
+            </DialogDescription>
+        </DialogHeader>
+
+        <DialogFooter>
+            <Button
+                variant="outline"
+                onClick={() => setSignOutDialogOpen(false)}
+            >
+                Cancel
+            </Button>
+
+            <Button
+                variant="destructive"
+                onClick={() =>
+                    signOut({
+                        callbackUrl: "/login",
+                    })
+                }
+            >
+                Sign out
+            </Button>
+        </DialogFooter>
+    </DialogContent>
+</Dialog>
+</>
     );
 }
