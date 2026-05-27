@@ -1,6 +1,7 @@
 "use client";
 
 import { signOut, useSession } from "next-auth/react";
+import toast from "react-hot-toast";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -43,6 +44,18 @@ export function DashboardNavbar() {
     const user = session?.user;
     const [scrolled, setScrolled] = useState(false);
     const [signOutDialogOpen, setSignOutDialogOpen] = useState(false);
+    async function handleSignOut() {
+        setSignOutDialogOpen(false);
+        try {
+            await signOut({
+                callbackUrl: "/login",
+            });
+        } catch {
+            toast.error(
+                "Failed to sign out. Please try again."
+            );
+        }
+    }
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 8);
@@ -211,11 +224,7 @@ export function DashboardNavbar() {
 
             <Button
                 variant="destructive"
-                onClick={() =>
-                    signOut({
-                        callbackUrl: "/login",
-                    })
-                }
+                onClick={handleSignOut}
             >
                 Sign out
             </Button>
