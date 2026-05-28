@@ -1,4 +1,4 @@
-// lib/platforms.ts
+// Lib/platforms.ts
 
 export type Platform =
     | "github"
@@ -19,7 +19,6 @@ export type Platform =
 // ─── URL Validation Patterns ─────────────────────────────────────────────────
 
 const PLATFORM_PATTERNS: Record<Platform, RegExp> = {
-<<<<<<< HEAD
     github:     /^https?:\/\/(www\.)?github\.com\/[A-Za-z0-9_.-]+\/?(\?.*)?$/i,
     
     // Catch-all domain suffixes force immediate platform identification for paths like /feed or /jobs,
@@ -41,22 +40,6 @@ const PLATFORM_PATTERNS: Record<Platform, RegExp> = {
     medium:     /^https?:\/\/(www\.)?medium\.com\/@[A-Za-z0-9_.-]+\/?(\?.*)?$/i,
     dribbble:   /^https?:\/\/(www\.)?dribbble\.com\/[A-Za-z0-9_-]+\/?(\?.*)?$/i,
     website:    /^https?:\/\/.+/i,
-=======
-    github: /^https?:\/\/(www\.)?github\.com\/[^/]+/i,
-    linkedin: /^https?:\/\/(www\.)?linkedin\.com\/(in|company)\/[^/]+/i,
-    leetcode: /^https?:\/\/(www\.)?leetcode\.com\/[^/]+/i,
-    youtube: /^https?:\/\/(www\.)?youtube\.com\/[^/]+/i,
-    x: /^https?:\/\/(www\.)?(x|twitter)\.com\/[^/]+/i,
-    facebook: /^https?:\/\/(www\.)?facebook\.com\/[^/]+/i,
-    instagram: /^https?:\/\/(www\.)?instagram\.com\/[^/]+/i,
-    discord: /^https?:\/\/(www\.)?discord\.com\/users\/[^/]+/i,
-    twitch: /^https?:\/\/(www\.)?twitch\.tv\/[^/]+/i,
-    hashnode: /^https?:\/\/([^/]+\.)?hashnode\.(com|dev)(\/[^/]+)?/i,
-    devto: /^https?:\/\/(www\.)?dev\.to\/[^/]+/i,
-    medium: /^https?:\/\/(www\.)?medium\.com\/@?[^/]+/i,
-    dribbble: /^https?:\/\/(www\.)?dribbble\.com\/[^/]+/i,
-    website: /^https?:\/\/.+/i,
->>>>>>> 5300137 (fix: accept twitter.com URLs for X platform validation)
 };
 
 // ─── Platform Blocklists ─────────────────────────────────────────────────────
