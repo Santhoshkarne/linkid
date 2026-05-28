@@ -15,7 +15,7 @@ import { getCsrfToken } from "@/lib/csrfClient";
 import { useCsrf } from "@/lib/useCsrf";
 
 import { Navbar } from "../components/Navbar";
-  
+
 export default function RegisterPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
