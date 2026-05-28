@@ -5,6 +5,15 @@ function isValidEmail(value: unknown): value is string {
   return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -21,7 +30,18 @@ export async function POST(req: Request) {
     }
 
     const supportEmail = process.env.SUPPORT_EMAIL || "support@linkid.qzz.io";
-    const subjectLine = subject || "Contact form submission";
+    const sanitizedSubject = subject.replace(/[\r\n]+/g, " ").trim();
+    const subjectLine = sanitizedSubject || "Contact form submission";
+    
+
+    if (process.env.NODE_ENV !== "production") {
+      console.debug("Contact form sanitized values", {
+        escapedName: escapeHtml(name),
+        escapedEmail: escapeHtml(email),
+        escapedSubject: escapeHtml(subjectLine),
+        escapedDescription: escapeHtml(description).slice(0, 200),
+      });
+    }
 
     await sendSupportEmail({
       to: supportEmail,
@@ -30,11 +50,11 @@ export async function POST(req: Request) {
       html: `
         <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #111827;">
           <h2 style="margin-bottom: 16px;">LinkID Contact Form Submission</h2>
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Subject:</strong> ${subjectLine}</p>
+          <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+          <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+          <p><strong>Subject:</strong> ${escapeHtml(subjectLine)}</p>
           <div style="margin-top: 16px; padding: 16px; background: #f9fafb; border-radius: 12px;">
-            <p style="white-space: pre-wrap; line-height: 1.6;">${description}</p>
+            <p style="white-space: pre-wrap; line-height: 1.6;">${escapeHtml(description)}</p>
           </div>
         </div>
       `,
