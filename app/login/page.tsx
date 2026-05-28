@@ -61,9 +61,9 @@ export default function LoginPage() {
   return (
     <>
       <Navbar />
-
-        <div className="flex min-h-screen items-center justify-center px-4 pt-16">
-        <div className="w-full max-w-md space-y-3 rounded-xl border bg-background p-6 shadow-sm">          {/* HEADER */}
+      <div className="flex min-h-[calc(100vh-64px)] items-center justify-center px-4">
+        <div className="w-full max-w-md space-y-3 rounded-xl border bg-background p-6 shadow-sm">
+          {/* HEADER */}       
           <div className="text-center space-y-1">
             <h1 className="text-2xl font-bold">Welcome back</h1>
             <p className="text-sm text-muted-foreground">
