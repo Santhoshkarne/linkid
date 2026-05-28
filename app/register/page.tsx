@@ -7,15 +7,13 @@ import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import { useState } from "react";
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { getCsrfToken } from "@/lib/csrfClient";
 import { useCsrf } from "@/lib/useCsrf";
-
 import { Navbar } from "../components/Navbar";
-
+  
 export default function RegisterPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
@@ -143,6 +141,7 @@ export default function RegisterPage() {
                             <Input
                                 name="name"
                                 placeholder="Full name"
+                                autoComplete="name"
                                 required
                                 className="pl-10 transition-colors"
                             />
@@ -154,6 +153,7 @@ export default function RegisterPage() {
                                 name="email"
                                 type="email"
                                 placeholder="Email"
+                                autoComplete="email"
                                 required
                                 className="pl-10 transition-colors"
                             />
@@ -165,7 +165,8 @@ export default function RegisterPage() {
                                 name="password"
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Password"
-                                value={password}
+                                autoComplete="new-password"
+                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                                 className={`pl-10 pr-10 transition-colors ${password && error ? "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/30" : ""}`}
