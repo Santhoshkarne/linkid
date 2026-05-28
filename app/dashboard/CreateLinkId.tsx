@@ -9,6 +9,7 @@ import { getCsrfToken } from "@/lib/csrfClient";
 import { DashboardNavbar } from "../components/DashboardNavbar";
 import { Check } from "lucide-react";
 import { validateUsername } from "@/lib/validations/username";
+import toast, { Toaster } from "react-hot-toast";
 
 
 export default function CreateLinkId() {
@@ -88,16 +89,16 @@ export default function CreateLinkId() {
             if (!res.ok) {
                 try {
                     const data = await res.json();
-                    alert(data.error || "Failed to create LinkID. Please try again.");
+                    toast.error(data.error || "Failed to create LinkID. Please try again.");
                 } catch {
-                    alert("Failed to create LinkID. Please try again.");
+                    toast.error("Failed to create LinkID. Please try again.");
                 }
                 return;
             }
             window.location.reload();
         } catch (error) {
             console.error("Failed to create LinkID:", error);
-            alert("Failed to create LinkID. Please try again.");
+            toast.error("Failed to create LinkID. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -106,6 +107,7 @@ export default function CreateLinkId() {
     return (
         <>
             <DashboardNavbar />
+            <Toaster position="bottom-center" />
 
             <div className="flex min-h-[calc(100vh-64px)] items-center justify-center px-4">
                 <Card className="w-full max-w-md">

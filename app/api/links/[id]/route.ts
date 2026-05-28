@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
-import { validatePlatformUrl, detectPlatform, slugifyPlatform, type Platform } from "@/lib/platforms";
+import { validatePlatformUrl, detectPlatform, slugifyPlatform, isKnownPlatform, type Platform } from "@/lib/platforms";
 import { validateUrlBackend } from "@/lib/urlValidation";
 import { PLATFORM_ICONS } from "@/lib/platformIcons";
 
@@ -14,48 +14,44 @@ export async function PUT(
 ) {
   const session = await getServerSession(authOptions);
 
-    if (!session?.user?.email) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const { id } = await context.params;
-    const body = await req.json();
-    const url = body?.url;
-    const isPublic = body?.isPublic;
-    const label = body?.label;
-    const platform = body?.platform;
-
-    const rawExplicitPlatform = typeof platform === "string" ? platform.trim() : null;
-    const explicitPlatform = rawExplicitPlatform && Object.keys(PLATFORM_ICONS).includes(rawExplicitPlatform)
-        ? rawExplicitPlatform as Platform
-        : null;
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const { id } = await context.params;
   const body = await req.json();
   const url = body?.url;
   const isPublic = body?.isPublic;
+  const label = body?.label;
+  const platform = body?.platform;
+
+  const rawExplicitPlatform = typeof platform === "string" ? platform.trim() : null;
+  const explicitPlatform = rawExplicitPlatform && Object.keys(PLATFORM_ICONS).includes(rawExplicitPlatform)
+    ? rawExplicitPlatform as Platform
+    : null;
 
   const link = await prisma.link.findUnique({
     where: { id },
     include: { user: true },
   });
 
-    const data: { url?: string; isPublic?: boolean; label?: string; platform?: string } = {};
+  if (!link || link.user.email !== session.user.email) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
-    const activeUrl = typeof url === "string" ? url : link.url;
-    const activeLabel = typeof label === "string" ? label.trim() : link.label;
+  const data: { url?: string; isPublic?: boolean; label?: string; platform?: string } = {};
 
-    if (typeof label === "string") {
-        if (!activeLabel) {
-            return NextResponse.json(
-                { error: "Please enter a name for this link" },
-                { status: 400 }
-            );
-        }
-        data.label = activeLabel;
+  const activeLabel = typeof label === "string" ? label.trim() : link.label;
+
+  if (typeof label === "string") {
+    if (!activeLabel) {
+      return NextResponse.json(
+        { error: "Please enter a name for this link" },
+        { status: 400 }
+      );
     }
-
-  const data: { url?: string; isPublic?: boolean } = {};
+    data.label = activeLabel;
+  }
 
   if (typeof url === "string") {
     const validation = validateUrlBackend(url);
@@ -63,14 +59,10 @@ export async function PUT(
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }
 
-        // Derive platform from the final URL or dropdown for validation so custom user-defined
-        // platform slugs (e.g. when platform was stored as a custom label) don't
-        // cause a runtime exception in `validatePlatformUrl`.
-        const platformForValidation = explicitPlatform || detectPlatform(finalUrl);
+    const finalUrl = validation.normalizedUrl;
+    data.url = finalUrl;
 
-    const platformForValidation = isKnownPlatform(link.platform)
-      ? link.platform
-      : detectPlatform(finalUrl);
+    const platformForValidation = explicitPlatform || (isKnownPlatform(link.platform) ? link.platform : detectPlatform(finalUrl));
 
     if (!validatePlatformUrl(platformForValidation, finalUrl)) {
       return NextResponse.json(
@@ -78,58 +70,60 @@ export async function PUT(
         { status: 400 },
       );
     }
+  }
 
-    // Always derive and update platform to synchronize changes on url, label, or dropdown selection
-    const finalUrlForPlatform = data.url || link.url;
+  if (typeof url === "string" || typeof label === "string" || platform !== undefined) {
+    const finalUrlForPlatform = data.url || link.url || "";
     const detectedPlatform = explicitPlatform || detectPlatform(finalUrlForPlatform);
     let finalPlatform: string;
 
     if (detectedPlatform === "website") {
-        finalPlatform = slugifyPlatform(activeLabel);
+      finalPlatform = slugifyPlatform(activeLabel);
 
-        if (!finalPlatform) {
-            return NextResponse.json(
-                { error: "Please enter a valid alphanumeric name for this link" },
-                { status: 400 }
-            );
-        }
+      if (!finalPlatform) {
+        return NextResponse.json(
+          { error: "Please enter a valid alphanumeric name for this link" },
+          { status: 400 }
+        );
+      }
     } else {
-        finalPlatform = detectedPlatform;
+      finalPlatform = detectedPlatform;
     }
 
     if (finalPlatform !== link.platform) {
-        data.platform = finalPlatform;
+      data.platform = finalPlatform;
     }
-
-    if (typeof isPublic === "boolean") {
-        data.isPublic = isPublic;
-    }
+  }
 
   if (typeof isPublic === "boolean") {
     data.isPublic = isPublic;
   }
 
-    try {
-        await prisma.link.update({
-            where: { id },
-            data,
-        });
+  if (Object.keys(data).length === 0) {
+    return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
+  }
 
-        return NextResponse.json({ success: true });
-    } catch (err: unknown) {
-        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-            const labelForErrorMessage = (typeof label === "string" ? label.trim() : link.label) || "custom link";
-            return NextResponse.json(
-                { error: `You already added your ${labelForErrorMessage} link.` },
-                { status: 409 }
-            );
-        }
-        console.error("Link update error:", err);
-        return NextResponse.json(
-            { error: "Something went wrong" },
-            { status: 500 }
-        );
+  try {
+    const updatedLink = await prisma.link.update({
+      where: { id },
+      data,
+    });
+
+    return NextResponse.json({ success: true, link: updatedLink });
+  } catch (err: unknown) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+      const labelForErrorMessage = (typeof label === "string" ? label.trim() : link.label) || "custom link";
+      return NextResponse.json(
+        { error: `You already added your ${labelForErrorMessage} link.` },
+        { status: 409 }
+      );
     }
+    console.error("Link update error:", err);
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function DELETE(
