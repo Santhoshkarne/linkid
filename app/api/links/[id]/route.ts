@@ -9,10 +9,10 @@ import { validateUrlBackend } from "@/lib/urlValidation";
 import { PLATFORM_ICONS } from "@/lib/platformIcons";
 
 export async function PUT(
-    req: Request,
-    context: { params: Promise<{ id: string }> }
+  req: Request,
+  context: { params: Promise<{ id: string }> },
 ) {
-    const session = await getServerSession(authOptions);
+  const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -30,14 +30,15 @@ export async function PUT(
         ? rawExplicitPlatform as Platform
         : null;
 
-    const link = await prisma.link.findUnique({
-        where: { id },
-        include: { user: true },
-    });
+  const { id } = await context.params;
+  const body = await req.json();
+  const url = body?.url;
+  const isPublic = body?.isPublic;
 
-    if (!link || link.user.email !== session.user.email) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+  const link = await prisma.link.findUnique({
+    where: { id },
+    include: { user: true },
+  });
 
     const data: { url?: string; isPublic?: boolean; label?: string; platform?: string } = {};
 
@@ -54,30 +55,28 @@ export async function PUT(
         data.label = activeLabel;
     }
 
-    if (typeof url === "string") {
-        const validation = validateUrlBackend(url);
-        if (!validation.valid) {
-            return NextResponse.json(
-                { error: validation.error },
-                { status: 400 }
-            );
-        }
+  const data: { url?: string; isPublic?: boolean } = {};
 
-        const finalUrl = validation.normalizedUrl;
+  if (typeof url === "string") {
+    const validation = validateUrlBackend(url);
+    if (!validation.valid) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
+    }
 
         // Derive platform from the final URL or dropdown for validation so custom user-defined
         // platform slugs (e.g. when platform was stored as a custom label) don't
         // cause a runtime exception in `validatePlatformUrl`.
         const platformForValidation = explicitPlatform || detectPlatform(finalUrl);
 
-        if (!validatePlatformUrl(platformForValidation, finalUrl)) {
-            return NextResponse.json(
-                { error: "Please enter a valid public link" },
-                { status: 400 }
-            );
-        }
+    const platformForValidation = isKnownPlatform(link.platform)
+      ? link.platform
+      : detectPlatform(finalUrl);
 
-        data.url = finalUrl;
+    if (!validatePlatformUrl(platformForValidation, finalUrl)) {
+      return NextResponse.json(
+        { error: "Please enter a valid public link" },
+        { status: 400 },
+      );
     }
 
     // Always derive and update platform to synchronize changes on url, label, or dropdown selection
@@ -106,9 +105,9 @@ export async function PUT(
         data.isPublic = isPublic;
     }
 
-    if (Object.keys(data).length === 0) {
-        return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
-    }
+  if (typeof isPublic === "boolean") {
+    data.isPublic = isPublic;
+  }
 
     try {
         await prisma.link.update({
@@ -134,29 +133,30 @@ export async function PUT(
 }
 
 export async function DELETE(
-    req: Request,
-    context: { params: Promise<{ id: string }> }
+  req: Request,
+  context: { params: Promise<{ id: string }> },
 ) {
-    const session = await getServerSession(authOptions);
+  const session = await getServerSession(authOptions);
 
-    if (!session?.user?.email) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-    const { id } = await context.params;
+  const { id } = await context.params;
 
-    const link = await prisma.link.findUnique({
-        where: { id },
-        include: { user: true },
-    });
+  const link = await prisma.link.findUnique({
+    where: { id },
+    include: { user: true },
+  });
 
-    if (!link || link.user.email !== session.user.email) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+  if (!link || link.user.email !== session.user.email) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
-    await prisma.link.delete({
-        where: { id },
-    });
+  await prisma.link.delete({
+    where: { id },
+  });
 
-    return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true });
 }
+
