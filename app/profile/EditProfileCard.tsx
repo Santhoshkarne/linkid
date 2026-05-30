@@ -7,6 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getCsrfToken } from "@/lib/csrfClient";
 import { Check, X } from "lucide-react";
+
+const USERNAME_REGEX = /^[a-zA-Z0-9-]+$/;
+
 export default function EditProfileCard({
     initialName,
     initialUsername,
@@ -68,7 +71,23 @@ export default function EditProfileCard({
         return () => clearTimeout(timer);
     }, [username, initialUsername]);
 
+    function validate(): string | null {
+      if (!name.trim())
+        return "Name cannot be empty.";
+      if (name.trim().length < 2)
+        return "Name must be ≥ 2 chars.";
+      if (username.trim().length < 3)
+        return "Username must be ≥ 3 chars.";
+      if (!USERNAME_REGEX.test(username.trim()))
+        return "Letters, numbers, _ - only.";
+      if (bio.trim().length > 160)
+        return "Bio max 160 characters.";
+      return null;
+    }
+
     async function saveChanges() {
+        const err = validate();
+        if (err) { alert(err); return; }
         setLoading(true);
         const csrfToken = await getCsrfToken();
 
@@ -78,7 +97,11 @@ export default function EditProfileCard({
                 "Content-Type": "application/json",
                 "x-csrf-token": csrfToken,
             },
-            body: JSON.stringify({ name, username,bio }),
+            body: JSON.stringify({ 
+                name: name.trim(), 
+                username: username.trim(),
+                bio: bio.trim()
+            }),
         });
 
         setLoading(false);
@@ -170,6 +193,7 @@ export default function EditProfileCard({
                         checking ||
                         !isDirty ||
                         username.length < 3 ||
+                        !USERNAME_REGEX.test(username) ||
                         (!available && username !== initialUsername)
                     }
                 >
