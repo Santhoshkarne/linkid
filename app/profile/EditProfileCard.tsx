@@ -134,18 +134,20 @@ export default function EditProfileCard({
                             ⚠️ <strong>Heads up:</strong> Changing your username may affect existing shared links. Old links will automatically redirect to your new username.
                         </div>
                     )}
-                    {available === true && (
-                        <p className="flex items-center gap-1 text-sm text-green-600">
-                            <Check className="h-4 w-4" /> Username available
-                        </p>
-                    )}
+                    
+                    <div role="status" aria-live="polite" aria-atomic="true">
+                        {available === true && (
+                            <p className="flex items-center gap-1 text-sm text-green-600">
+                                <Check className="h-4 w-4" /> Username available
+                            </p>
+                        )}
 
-                    {available === false && (
-                        <p className="flex items-center gap-1 text-sm text-red-600">
-                            <X className="h-4 w-4" /> Username already taken
-                        </p>
-                    )}
-
+                        {available === false && (
+                            <p className="flex items-center gap-1 text-sm text-red-600">
+                                <X className="h-4 w-4" /> Username already taken
+                            </p>
+                        )}
+                    </div>
                 </div>
                 
                 <div className="space-y-1">
