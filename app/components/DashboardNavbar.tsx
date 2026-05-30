@@ -44,8 +44,10 @@ export function DashboardNavbar() {
     const user = session?.user;
     const [scrolled, setScrolled] = useState(false);
     const [signOutDialogOpen, setSignOutDialogOpen] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
     async function handleSignOut() {
         setSignOutDialogOpen(false);
+        setDropdownOpen(false);
         try {
             await signOut({
                 callbackUrl: "/login",
@@ -113,7 +115,10 @@ export function DashboardNavbar() {
                     <ThemeToggle />
 
                     {/* User dropdown */}
-                    <DropdownMenu>
+                    <DropdownMenu
+                     open={dropdownOpen} 
+                     onOpenChange={setDropdownOpen}
+                     >
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
@@ -189,7 +194,7 @@ export function DashboardNavbar() {
 
                             <DropdownMenuItem
                                 className="mx-1 mb-1 flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-red-600 focus:bg-red-50 focus:text-red-700 dark:text-red-400 dark:focus:bg-red-950/40 dark:focus:text-red-300"
-                                onClick={() => setSignOutDialogOpen(true)}
+                                onClick={() => {setDropdownOpen(false);setSignOutDialogOpen(true); }}
                             >
                                 <LogOut className="h-4 w-4" />
                                 Sign out
