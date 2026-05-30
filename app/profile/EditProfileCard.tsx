@@ -135,20 +135,6 @@ export default function EditProfileCard({
                         </div>
                     )}
 
-                    <div className="space-y-1">
-                        <Label>Bio</Label>
-                        <textarea
-                            className="w-full rounded-md border p-2 text-sm"
-                            maxLength={160}
-                            value={bio}
-                            onChange={(e) => setBio(e.target.value)}
-                            placeholder="Tell something about yourself..."
-                        />
-                        <p className="text-xs text-muted-foreground text-right">
-                            {bio.length}/160
-                        </p>
-                    </div>
-
 
                     {available === true && (
                         <p className="flex items-center gap-1 text-sm text-green-600">
@@ -161,6 +147,20 @@ export default function EditProfileCard({
                             <X className="h-4 w-4" /> Username already taken
                         </p>
                     )}
+                </div>
+                
+                <div className="space-y-1">
+                    <Label>Bio</Label>
+                    <textarea
+                        className="w-full rounded-md border p-2 text-sm"
+                        maxLength={160}
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                        placeholder="Tell something about yourself..."
+                    />
+                    <p className="text-xs text-muted-foreground text-right">
+                        {bio.length}/160
+                    </p>
                 </div>
 
                 <Button
