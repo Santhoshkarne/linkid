@@ -73,7 +73,7 @@ export function ContactFAQ() {
         e.preventDefault();
         toggleItem(itemId);
         break;
-      case "ArrowDown":
+      case "ArrowDown": {
         e.preventDefault();
         const nextIndex = index + 1;
         if (nextIndex < faqItems.length) {
@@ -81,7 +81,8 @@ export function ContactFAQ() {
           itemRefs.current[nextId]?.focus();
         }
         break;
-      case "ArrowUp":
+      }
+      case "ArrowUp": {
         e.preventDefault();
         const prevIndex = index - 1;
         if (prevIndex >= 0) {
@@ -89,15 +90,17 @@ export function ContactFAQ() {
           itemRefs.current[prevId]?.focus();
         }
         break;
+      }
       case "Home":
         e.preventDefault();
         itemRefs.current[faqItems[0].id]?.focus();
         break;
-      case "End":
+      case "End": {
         e.preventDefault();
         const lastId = faqItems[faqItems.length - 1].id;
         itemRefs.current[lastId]?.focus();
         break;
+      }
       default:
         break;
     }

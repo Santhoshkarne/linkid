@@ -61,6 +61,7 @@ export function SupportMethodsSection() {
               href={method.href}
               target={isExternal ? "_blank" : undefined}
               rel={isExternal ? "noopener noreferrer" : undefined}
+              aria-label={isExternal ? `${method.title} (opens in a new tab)` : undefined}
               className="group rounded-lg border border-border bg-card/50 p-6 transition-all hover:border-ring hover:bg-card hover:shadow-md dark:border-border dark:bg-card/30 dark:hover:shadow-lg dark:hover:shadow-black/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <div className="flex items-start justify-between gap-4">
@@ -81,7 +82,7 @@ export function SupportMethodsSection() {
                 <span className="text-xs font-medium text-primary/80 group-hover:text-primary transition-colors flex items-center gap-1">
                   {method.label}
                   {isExternal && (
-                    <span className="text-[10px]" aria-label="opens in new tab">
+                    <span className="text-[10px]" aria-hidden="true">
                       ↗
                     </span>
                   )}

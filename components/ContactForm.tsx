@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,8 @@ interface FormState {
 }
 
 export function ContactForm() {
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
   const [formState, setFormState] = useState<FormState>({
     status: "idle",
     error: null,
@@ -26,6 +28,20 @@ export function ContactForm() {
     description: "",
   });
 
+  const [fieldErrors, setFieldErrors] = useState<{
+    name?: string;
+    email?: string;
+    description?: string;
+  }>({});
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
   const isSubmitting = formState.status === "submitting";
   const hasError = formState.status === "error";
   const hasSuccess = formState.status === "success";
@@ -33,6 +49,7 @@ export function ContactForm() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormState({ status: "submitting", error: null, success: false });
+    setFieldErrors({});
 
     const name = formData.name.trim();
     const email = formData.email.trim();
@@ -40,20 +57,21 @@ export function ContactForm() {
     const description = formData.description.trim();
 
     // Client-side validation
-    if (!name || !email || !description) {
+    const errors: typeof fieldErrors = {};
+    if (!name) errors.name = "Name is required.";
+    if (!email) errors.email = "Email is required.";
+    if (!description) errors.description = "Message is required.";
+
+    // Basic email validation
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errors.email = "Please enter a valid email address.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       setFormState({
         status: "error",
         error: "Please fill in all required fields.",
-        success: false,
-      });
-      return;
-    }
-
-    // Basic email validation
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setFormState({
-        status: "error",
-        error: "Please enter a valid email address.",
         success: false,
       });
       return;
@@ -78,8 +96,13 @@ export function ContactForm() {
       });
       setFormData({ name: "", email: "", subject: "", description: "" });
 
+      // Clear any existing timeout before creating a new one
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
       // Reset success state after 5 seconds
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         setFormState({ status: "idle", error: null, success: false });
       }, 5000);
     } catch (error) {
@@ -96,6 +119,14 @@ export function ContactForm() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear field error when user starts editing
+    if (fieldErrors[name as keyof typeof fieldErrors]) {
+      setFieldErrors((prev) => {
+        const updated = { ...prev };
+        delete updated[name as keyof typeof fieldErrors];
+        return updated;
+      });
+    }
   };
 
   return (
@@ -119,7 +150,7 @@ export function ContactForm() {
             placeholder="John Doe"
             required
             aria-describedby="name-description"
-            aria-invalid={hasError && !formData.name}
+            aria-invalid={!!fieldErrors.name}
             disabled={isSubmitting}
             className="transition-colors"
           />
@@ -142,7 +173,7 @@ export function ContactForm() {
             placeholder="john@example.com"
             required
             aria-describedby="email-description"
-            aria-invalid={hasError && !formData.email}
+            aria-invalid={!!fieldErrors.email}
             disabled={isSubmitting}
             className="transition-colors"
           />
@@ -186,7 +217,7 @@ export function ContactForm() {
           placeholder="Describe your issue or inquiry in detail..."
           required
           aria-describedby="description-description"
-          aria-invalid={hasError && !formData.description}
+          aria-invalid={!!fieldErrors.description}
           disabled={isSubmitting}
           className="transition-colors min-h-32"
         />
