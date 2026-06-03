@@ -32,7 +32,7 @@ const supportMethods = [
     icon: MessageSquare,
     title: "Community",
     description: "Chat with other users on Discord",
-    href: "https://discord.com/invite/jydRT5jK",
+    href: "https://discord.gg/linkid",
     label: "Join Discord",
     external: true,
   },
