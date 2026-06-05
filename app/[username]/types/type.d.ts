@@ -7,6 +7,7 @@ export type Link = {
     position: number;
     clicks: number;
     isPublic: boolean;
+    updatedAt?: Date;
     userId: string;
 }
 
