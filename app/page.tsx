@@ -4,8 +4,8 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import OnboardingTour from "@/components/OnboardingTour";
-import TourHelpButton from "@/components/TourHelpButton";
+import OnboardingTour from "@/app/components/OnboardingTour";
+import TourHelpButton from "@/app/components/TourHelpButton";
 
 import {
   Link2,
