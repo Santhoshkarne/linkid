@@ -183,7 +183,7 @@ export function ResumeCard({ initialResumeUrl, initialDownloadCount }: ResumeCar
                     )}
                     <Button
                         onClick={handleSave}
-                        disabled={saving || (!isDirty && originalUrl)}
+                        disabled={saving || (!isDirty && !!originalUrl)}
                         className="sm:w-auto"
                     >
                         {saving ? "Saving..." : "Save Resume URL"}
