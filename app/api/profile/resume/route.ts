@@ -93,10 +93,13 @@ export async function PATCH(req: NextRequest) {
                 data: { resumeUrl: urlValidation.normalizedUrl },
             });
         } else {
-            // If resumeUrl is null/empty, remove the resume
+            // If resumeUrl is null/empty, remove the resume and reset download count
             await prisma.user.update({
                 where: { id: session.user.id },
-                data: { resumeUrl: null },
+                data: { 
+                    resumeUrl: null,
+                    resumeDownloadCount: 0,
+                },
             });
         }
 
