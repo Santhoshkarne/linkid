@@ -192,7 +192,7 @@ export default async function Image({ params }: { params: Promise<{ username: st
                         color: '#f4f4f5',
                       }}
                     >
-                      {link ? link.title : ''}
+                      {link ? link.label : ''}
                     </div>
                     {link && link.url && (
                       <div style={{ fontSize: 20, color: '#a1a1aa', marginTop: 8 }}>
