@@ -48,7 +48,7 @@ const PLATFORM_PATTERNS: Record<Platform, RegExp> = {
 };
 
 // ─── Platform Blocklists ─────────────────────────────────────────────────────
-// Catches unauthorized feeds, internal app views, and search frames right after domain mapping.
+// Defence-in-depth: catches internal app views even if the main pattern is ever loosened.
 const PLATFORM_BLOCKLIST: Partial<Record<Platform, RegExp>> = {
     linkedin: /\/(messaging|feed|jobs|notifications|search)\b/i,
     facebook: /\/(messaging|feed|groups|events|marketplace)\b/i,
