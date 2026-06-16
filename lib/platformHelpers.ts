@@ -9,7 +9,7 @@ export const formatLabel = (key: string) => {
         leetcode: "LeetCode",
         devto: "Dev.to",
         codeforces: "Codeforces",
-        codechef: "Codechef",
+        codechef: "CodeChef",
 
     };
     return exceptions[key] || key.charAt(0).toUpperCase() + key.slice(1);

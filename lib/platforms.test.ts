@@ -56,8 +56,8 @@ test("validatePlatformUrl accepts valid URLs for each platform", () => {
     assert.equal(validatePlatformUrl("medium", "https://medium.com/@author"), true);
     assert.equal(validatePlatformUrl("medium", "https://medium.com/publication"), true);
     assert.equal(validatePlatformUrl("dribbble", "https://dribbble.com/designer"), true);
-    assert.equal(validatePlatformUrl("codeforces", "https://codeforces.com/profile"), true);
-    assert.equal(validatePlatformUrl("codechef", "https://codechef.com/users/"), true);
+    assert.equal(validatePlatformUrl("codeforces", "https://codeforces.com/profile/tourist"), true);
+    assert.equal(validatePlatformUrl("codechef", "https://www.codechef.com/users/tourist"), true);
     assert.equal(validatePlatformUrl("website", "https://my-portfolio.com"), true);
     assert.equal(validatePlatformUrl("website", "https://blog.example.com/posts"), true);
 });
@@ -68,8 +68,8 @@ test("validatePlatformUrl rejects URLs that don't match the platform", () => {
     assert.equal(validatePlatformUrl("youtube", "https://vimeo.com/channel"), false);
     assert.equal(validatePlatformUrl("instagram", "https://threads.net/user"), false);
     assert.equal(validatePlatformUrl("twitch", "https://youtube.com/@streamer"), false);
-    assert.equal(validatePlatformUrl("codeforces", "https://codechef.com/users/"), false);
-    assert.equal(validatePlatformUrl("codechef", "https://codeforces.com/profile"), false);
+    assert.equal(validatePlatformUrl("codeforces", "https://codechef.com/users/tourist"), false);
+    assert.equal(validatePlatformUrl("codechef", "https://codeforces.com/profile/tourist"), false);
 
 });
 
@@ -94,8 +94,8 @@ test("validatePlatformUrl rejects cross-platform URL swaps", () => {
     assert.equal(validatePlatformUrl("medium", "https://substack.com/@author"), false);
     assert.equal(validatePlatformUrl("dribbble", "https://behance.net/designer"), false);
     assert.equal(validatePlatformUrl("dribbble", "https://figma.com/@designer"), false);
-    assert.equal(validatePlatformUrl("codeforces", "https://codechef.com/users/"), false);
-    assert.equal(validatePlatformUrl("codechef", "https://codeforces.com/profile"), false);
+    assert.equal(validatePlatformUrl("codeforces", "https://codechef.com/users/tourist"), false);
+    assert.equal(validatePlatformUrl("codechef", "https://codeforces.com/profile/tourist"), false);
 
 });
 
