@@ -8,6 +8,9 @@ export const formatLabel = (key: string) => {
         youtube: "YouTube",
         leetcode: "LeetCode",
         devto: "Dev.to",
+        codeforces: "Codeforces",
+        codechef: "Codechef",
+
     };
     return exceptions[key] || key.charAt(0).toUpperCase() + key.slice(1);
 };
